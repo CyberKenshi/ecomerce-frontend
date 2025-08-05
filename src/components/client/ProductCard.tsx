@@ -1,15 +1,19 @@
+"use client";
 import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Product } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils'; // Hàm tiện ích format tiền tệ
+import { useCart } from '@/contexts/CartContext';
 
 interface ProductCardProps {
   product: Product;
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
+  const { dispatch } = useCart();
+
   return (
     <Card className="flex flex-col">
       <CardHeader>
@@ -30,7 +34,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       </CardContent>
       <CardFooter className="flex justify-between items-center">
         <p className="text-xl font-bold text-primary">{formatCurrency(product.price)}</p>
-        <Button>Thêm vào giỏ</Button>
+        <Button className='cursor-pointer' onClick={() => dispatch({ type: 'ADD_ITEM', payload: { ...product, quantity: 1 } })}>Thêm vào giỏ</Button>
       </CardFooter>
     </Card>
   );
