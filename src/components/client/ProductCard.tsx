@@ -10,6 +10,7 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
+  const mainImage = product.image && product.image.length > 0 ? product.image[0] : '/vercel.svg';
   return (
     <Card className="flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
       <CardHeader className="p-0">
@@ -32,7 +33,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         <p className="text-sm text-muted-foreground mt-2">{product.manufacturer}</p>
       </CardContent>
       <CardFooter className="flex justify-between items-center">
-        <p className="text-xl font-bold text-primary">{formatCurrency(product.price)}</p>
+        <p className="text-xl font-bold text-primary">{formatCurrency(product.retailPrice)}</p>
         <Button>Thêm vào giỏ</Button>
       </CardFooter>
     </Card>

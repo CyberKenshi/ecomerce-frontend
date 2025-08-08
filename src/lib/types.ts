@@ -6,7 +6,7 @@ export interface Product {
   productName: string;
   barcode: string;
   categoryId: string;
-  importPrice: number;
+  importPrice?: number;
   retailPrice: number;
   manufacturer: string;
   description: string;
@@ -33,7 +33,7 @@ export interface User {
   _id: string;       
   fullName: string; 
   email: string;
-  role?: 'admin' | 'customer';
+  token: string;
 }
 
 // Định nghĩa cho đơn hàng
@@ -44,4 +44,32 @@ export interface Order {
   total: number;
   status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
   createdAt: Date;
+}
+
+// Approval Requests (admin)
+export type ApprovalStatus = 'pending' | 'approved' | 'rejected';
+
+export interface ApprovalRequest {
+  _id: string;
+  productId?: string | Product | null;
+  orderId?: string | null;
+  performanceChange?: number | null;
+  analysisResult?: string | null;
+  suggestedAdjustments: any[]; // backend returns array, structure may vary
+  status: ApprovalStatus;
+  adminComments?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Customers
+export interface Customer {
+  customerId: string;
+  customerName: string;
+  phoneNumber: string;
+  address: string;
+  email: string;
+  profile?: string;
+  createdAt: string;
+  updatedAt: string;
 }

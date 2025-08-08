@@ -18,15 +18,21 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Product } from "@/lib/types";
+import { createProduct } from "@/lib/api";
 import { useRouter } from "next/navigation";
 
 // Định nghĩa schema để xác thực dữ liệu form
 const formSchema = z.object({
-  name: z.string().min(2, { message: "Tên sản phẩm phải có ít nhất 2 ký tự." }),
-  description: z.string().min(10, { message: "Mô tả phải có ít nhất 10 ký tự." }),
-  price: z.coerce.number().min(0, { message: "Giá không được âm." }),
-  stock: z.coerce.number().int().min(0, { message: "Số lượng tồn kho không được âm." }),
-  category: z.string().min(1, { message: "Vui lòng chọn danh mục." }),
+  productName: z.string().min(2, { message: "Product name must have at least 2 characters." }),
+  description: z.string().min(10, { message: "Description must have at least 10 characters." }).optional().or(z.literal('').transform(() => '')),
+  retailPrice: z.coerce.number().min(0, { message: "Retail price cannot be negative." }),
+  importPrice: z.coerce.number().min(0, { message: "Import price cannot be negative." }).optional(),
+  stockQuantity: z.coerce.number().int().min(0, { message: "Stock quantity cannot be negative." }),
+  categoryId: z.string().min(1, { message: "Please enter category." }),
+  manufacturer: z.string().min(1, { message: "Please enter manufacturer." }),
+  images: z
+    .any()
+    .refine((files) => files && files.length > 0, { message: 'Please upload at least 1 image.' }),
 });
 
 type ProductFormValues = z.infer<typeof formSchema>;
@@ -41,36 +47,54 @@ export function ProductForm({ initialData }: ProductFormProps) {
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData ? {
-        name: initialData.name,
-        description: initialData.description,
-        price: initialData.price,
-        stock: initialData.stock,
-        category: initialData.category,
-    } : {
-        name: "",
-        description: "",
-        price: 0,
-        stock: 0,
-        category: "",
-    },
+    defaultValues: initialData
+      ? {
+          productName: initialData.productName,
+          description: initialData.description || '',
+          retailPrice: initialData.retailPrice,
+          importPrice: initialData.importPrice,
+          stockQuantity: initialData.stockQuantity,
+          categoryId: initialData.categoryId,
+          manufacturer: initialData.manufacturer,
+          images: undefined as unknown as FileList,
+        }
+      : {
+          productName: '',
+          description: '',
+          retailPrice: 0,
+          importPrice: undefined,
+          stockQuantity: 0,
+          categoryId: '',
+          manufacturer: '',
+          images: undefined as unknown as FileList,
+        },
   });
 
   const onSubmit = async (values: ProductFormValues) => {
-    // --- LOGIC GỌI API THÊM/SỬA SẢN PHẨM SẼ Ở ĐÂY ---
-    console.log("Form submitted with values:", values);
-
-    if (isEditMode) {
-      // Gọi API cập nhật sản phẩm
-      // await api.put(`/products/${initialData.id}`, values);
-      alert("Cập nhật sản phẩm thành công!");
-    } else {
-      // Gọi API tạo sản phẩm mới
-      // await api.post('/products', values);
-      alert("Thêm sản phẩm mới thành công!");
+    try {
+      if (isEditMode && initialData) {
+        // TODO: implement update flow (PATCH /api/products/:productId)
+        alert('Chức năng cập nhật sẽ được bổ sung sau.');
+      } else {
+        const created = await createProduct({
+          productName: values.productName,
+          retailPrice: values.retailPrice,
+          importPrice: values.importPrice,
+          categoryId: values.categoryId,
+          manufacturer: values.manufacturer,
+          description: values.description || '',
+          stockQuantity: values.stockQuantity,
+          images: values.images as unknown as FileList,
+        });
+        if (created) {
+          alert('Thêm sản phẩm mới thành công!');
+        }
+      }
+      router.push('/admin/products');
+      router.refresh();
+    } catch (err: any) {
+      alert(err?.message || 'Có lỗi xảy ra khi lưu sản phẩm');
     }
-    router.push('/admin/products'); // Quay lại trang danh sách sản phẩm
-    router.refresh(); // Làm mới dữ liệu trang
   };
 
   return (
@@ -78,12 +102,12 @@ export function ProductForm({ initialData }: ProductFormProps) {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 bg-white p-8 rounded-lg shadow-md">
         <FormField
           control={form.control}
-          name="name"
+          name="productName"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Tên sản phẩm</FormLabel>
               <FormControl>
-                <Input placeholder="Ví dụ: Áo thun cao cấp" {...field} />
+                <Input placeholder="Ví dụ: iPhone 15" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -103,45 +127,84 @@ export function ProductForm({ initialData }: ProductFormProps) {
           )}
         />
         <div className="grid md:grid-cols-2 gap-8">
-            <FormField
+          <FormField
             control={form.control}
-            name="price"
+            name="retailPrice"
             render={({ field }) => (
-                <FormItem>
-                <FormLabel>Giá (VND)</FormLabel>
+              <FormItem>
+                <FormLabel>Giá bán (VND)</FormLabel>
                 <FormControl>
-                    <Input type="number" {...field} />
+                  <Input type="number" {...field} />
                 </FormControl>
                 <FormMessage />
-                </FormItem>
+              </FormItem>
             )}
-            />
-            <FormField
+          />
+          <FormField
             control={form.control}
-            name="stock"
+            name="importPrice"
             render={({ field }) => (
-                <FormItem>
+              <FormItem>
+                <FormLabel>Giá nhập (VND) - tùy chọn</FormLabel>
+                <FormControl>
+                  <Input type="number" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className="grid md:grid-cols-2 gap-8">
+          <FormField
+            control={form.control}
+            name="stockQuantity"
+            render={({ field }) => (
+              <FormItem>
                 <FormLabel>Số lượng tồn kho</FormLabel>
                 <FormControl>
-                    <Input type="number" {...field} />
+                  <Input type="number" {...field} />
                 </FormControl>
                 <FormMessage />
-                </FormItem>
+              </FormItem>
             )}
-            />
+          />
+          <FormField
+            control={form.control}
+            name="categoryId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Mã danh mục</FormLabel>
+                <FormControl>
+                  <Input placeholder="vd: smartphone-1" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
         <FormField
           control={form.control}
-          name="category"
+          name="manufacturer"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Danh mục</FormLabel>
+              <FormLabel>Hãng sản xuất</FormLabel>
               <FormControl>
-                <Input placeholder="Ví dụ: Thời trang nam" {...field} />
+                <Input placeholder="vd: Apple, Samsung" {...field} />
               </FormControl>
-               <FormDescription>
-                Trong thực tế, đây nên là một dropdown chọn từ danh sách danh mục có sẵn.
-              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="images"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Hình ảnh sản phẩm (tối đa 5)</FormLabel>
+              <FormControl>
+                <Input type="file" accept="image/*" multiple onChange={(e) => field.onChange(e.target.files)} />
+              </FormControl>
+              <FormDescription>Chọn từ 1 đến 5 ảnh để tải lên.</FormDescription>
               <FormMessage />
             </FormItem>
           )}

@@ -14,14 +14,13 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import api from "@/lib/api";
 import { User } from "@/lib/types"; // Import User type
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -34,7 +33,7 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const response = await api.post("/auth/login/customer", { email, password });
+      const response = await api.post("/api/auth/login", { username, password });
 
       if (response.data && response.data.success) {
         const { token, ...userData } = response.data.result;
@@ -43,11 +42,12 @@ export default function LoginPage() {
           _id: userData._id,
           fullName: userData.fullName,
           email: userData.email,
+          token: token,
         };
 
         auth.login(token, userToStore);
 
-        router.push("/");
+        router.push("/admin/products");
       }
     } catch (err: any) {
       const errorMessage =
@@ -59,25 +59,20 @@ export default function LoginPage() {
   };
 
   return (
-    // ... nội dung JSX của form giữ nguyên
     <Card className="w-full max-w-sm">
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <CardHeader>
-          <CardTitle className="text-2xl">Login</CardTitle>
-          <CardDescription>
-            Enter your email below to login to your account.
-          </CardDescription>
+          <CardTitle className="text-2xl">CMS Login</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4">
           <div className="grid gap-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">Username</Label>
             <Input
-              id="email"
-              type="email"
-              placeholder="m@example.com"
+              id="username"
+              type="text"
               required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
             />
           </div>
           <div className="grid gap-2">
@@ -96,12 +91,6 @@ export default function LoginPage() {
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? "Processing..." : "Login"}
           </Button>
-          <div className="mt-4 text-center text-sm">
-            Don't have an account?{" "}
-            <Link href="/register" className="underline">
-              Register
-            </Link>
-          </div>
         </CardFooter>
       </form>
     </Card>

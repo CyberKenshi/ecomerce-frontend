@@ -29,9 +29,9 @@ export default function Header() {
             <span className="font-bold">E-Store</span>
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
-            <Link href="/products">Sản phẩm</Link>
-            <Link href="/about">Giới thiệu</Link>
-            <Link href="/contact">Liên hệ</Link>
+            <Link href="/#">Sản phẩm</Link>
+            <Link href="/#">Giới thiệu</Link>
+            <Link href="/#">Liên hệ</Link>
           </nav>
         </div>
         <div className="flex flex-1 items-center justify-end space-x-4"> {/* Tăng khoảng cách một chút */}

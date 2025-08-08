@@ -20,14 +20,8 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
 }
 
 export default async function ProductDetailPage({ params }: { params: { id: string } }) {
-  // API thật sẽ được gọi ở đây khi nó sẵn sàng
-  // const product: Product | null = await getProductById(params.id);
-
-  // --- DÙNG TẠM DỮ LIỆU MOCK ĐỂ TEST GIAO DIỆN ---
-  // Khi API thật hoạt động, bạn hãy xóa phần này và bỏ comment phần trên
   const { products } = await getProducts();
   const product = products.find((p: Product) => p.productId === params.id);
-  // --- KẾT THÚC PHẦN DÙNG TẠM ---
   
   if (!product) {
     notFound();
@@ -59,7 +53,6 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
         </div>
         <p className="text-muted-foreground leading-relaxed mb-6">{product.description}</p>
         
-        {/* Truyền vào product đã được ánh xạ để phù hợp với CartContext */}
         <AddToCartButton product={product} />
 
       </div>

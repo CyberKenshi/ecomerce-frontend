@@ -46,6 +46,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(userData);
     
     localStorage.setItem('authUser', JSON.stringify(userData));
+    localStorage.setItem('authToken', userData.token)
     Cookies.set('authToken', newToken, { expires: 7, path: '/' }); 
   };
 

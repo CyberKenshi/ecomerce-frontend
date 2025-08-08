@@ -5,16 +5,14 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, Package, ShoppingCart, Users, Settings, Tags, FileText } from 'lucide-react';
+import { Package, ShoppingCart, Users, Tags, Sparkles } from 'lucide-react';
 
 const navItems = [
-  { href: '/admin/dashboard', label: 'Tổng quan', icon: LayoutDashboard },
-  { href: '/admin/products', label: 'Sản phẩm', icon: Package },
-  { href: '/admin/categories', label: 'Danh mục', icon: Tags },
-  { href: '/admin/orders', label: 'Đơn hàng', icon: ShoppingCart },
-  { href: '/admin/users', label: 'Người dùng', icon: Users },
-  { href: '/admin/promotions', label: 'Khuyến mãi', icon: FileText },
-  { href: '/admin/cms', label: 'Quản lý nội dung', icon: Settings },
+  { href: '/admin/products', label: 'Products', icon: Package },
+  { href: '/admin/categories', label: 'Categories', icon: Tags },
+  { href: '/admin/orders', label: 'Orders', icon: ShoppingCart },
+  { href: '/admin/users', label: 'Customers', icon: Users },
+  { href: '/admin/approvals', label: 'AI Agents Requests', icon: Sparkles },
 ];
 
 export default function AdminSidebar() {

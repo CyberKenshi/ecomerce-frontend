@@ -18,7 +18,7 @@ export default function CartPage() {
   };
 
   const removeItem = (id: string | number) => {
-    if (confirm('Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?')) {
+    if (confirm('Are you sure you want to remove this item from your cart?')) {
       dispatch({ type: 'REMOVE_ITEM', payload: { id } });
     }
   };
@@ -26,9 +26,9 @@ export default function CartPage() {
   if (items.length === 0) {
     return (
       <div className="text-center py-20">
-        <h1 className="text-2xl font-bold mb-4">Giỏ hàng của bạn đang trống</h1>
+        <h1 className="text-2xl font-bold mb-4">Your cart is empty</h1>
         <Button asChild>
-          <Link href="/products">Tiếp tục mua sắm</Link>
+          <Link href="/">Continue Shopping</Link>
         </Button>
       </div>
     );
@@ -36,7 +36,7 @@ export default function CartPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-6">Giỏ hàng ({totalItems} sản phẩm)</h1>
+      <h1 className="text-3xl font-bold mb-6">Your cart ({totalItems} items)</h1>
       <div className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-4">
           {items.map(item => (
@@ -69,14 +69,14 @@ export default function CartPage() {
         </div>
         <div className="lg:col-span-1">
           <div className="p-6 bg-muted rounded-lg space-y-4">
-            <h2 className="text-xl font-semibold">Tóm tắt đơn hàng</h2>
+            <h2 className="text-xl font-semibold">Order summary</h2>
             <div className="flex justify-between">
-              <span>Tạm tính</span>
+              <span>Subtotal</span>
               <span>{formatCurrency(totalPrice)}</span>
             </div>
             <div className="flex justify-between">
-              <span>Phí vận chuyển</span>
-              <span>Miễn phí</span>
+              <span>Shipping</span>
+              <span>Free</span>
             </div>
             <div className="border-t my-2"></div>
             <div className="flex justify-between font-bold text-lg">
@@ -84,7 +84,7 @@ export default function CartPage() {
               <span>{formatCurrency(totalPrice)}</span>
             </div>
             <Button className="w-full" size="lg" asChild>
-              <Link href="/checkout">Tiến hành thanh toán</Link>
+              <Link href="/checkout">Proceed to checkout</Link>
             </Button>
           </div>
         </div>

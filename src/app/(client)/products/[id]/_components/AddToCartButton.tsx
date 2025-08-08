@@ -38,7 +38,7 @@ export default function AddToCartButton({ product }: AddToCartButtonProps) {
       payload: itemToAdd,
     });
     // Có thể thêm thông báo toast ở đây
-    alert(`${quantity} ${product.name} đã được thêm vào giỏ hàng!`);
+    alert(`${quantity} ${product.productName} has been added to cart!`);
   };
 
   const increaseQuantity = () => {
