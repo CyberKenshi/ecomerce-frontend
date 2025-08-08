@@ -3,12 +3,22 @@
 "use client";
 
 import Link from 'next/link';
-import { ShoppingCart, User, Search } from 'lucide-react';
+import { ShoppingCart, User, Search, LogOut } from 'lucide-react'; // Thêm icon LogOut
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/CartContext';
+import { useAuth } from '@/contexts/AuthContext'; // 1. Import hook useAuth
+import { useRouter } from 'next/navigation'; // Import useRouter để điều hướng
 
 export default function Header() {
   const { totalItems } = useCart();
+  const { isAuthenticated, user, logout } = useAuth();
+  const router = useRouter();
+
+  // 3. Tạo hàm xử lý đăng xuất
+  const handleLogout = () => {
+    logout();
+    router.push('/login');
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -24,15 +34,31 @@ export default function Header() {
             <Link href="/contact">Liên hệ</Link>
           </nav>
         </div>
-        <div className="flex flex-1 items-center justify-end space-x-2">
+        <div className="flex flex-1 items-center justify-end space-x-4"> {/* Tăng khoảng cách một chút */}
           <Button variant="ghost" size="icon">
             <Search className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/login">
-              <User className="h-5 w-5" />
-            </Link>
-          </Button>
+
+          {/* 4. Render giao diện có điều kiện */}
+          {isAuthenticated ? (
+            // Nếu đã đăng nhập
+            <>
+              <Button variant="ghost" asChild>
+                <Link href="/account">Chào, {user?.fullName}</Link>
+              </Button>
+              <Button variant="ghost" size="icon" onClick={handleLogout} title="Đăng xuất">
+                <LogOut className="h-5 w-5" />
+              </Button>
+            </>
+          ) : (
+            // Nếu chưa đăng nhập
+            <Button variant="ghost" size="icon" asChild title="Đăng nhập">
+              <Link href="/login">
+                <User className="h-5 w-5" />
+              </Link>
+            </Button>
+          )}
+
           <Button variant="ghost" size="icon" className="relative" asChild>
             <Link href="/cart">
               <ShoppingCart className="h-5 w-5" />

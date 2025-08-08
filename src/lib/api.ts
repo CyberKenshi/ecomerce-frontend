@@ -1,5 +1,7 @@
+
 import axios from 'axios';
 
+// Tạo instance axios
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
   headers: {
@@ -7,20 +9,35 @@ const api = axios.create({
   },
 });
 
-// Mock API functions (để phát triển UI mà không cần backend)
-// Sau này sẽ thay thế bằng các lệnh gọi API thật
+// ✅ THÊM INTERCEPTOR VÀO ĐÂY
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('authToken');
+    
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+
 export const getProducts = async () => {
-  // return await api.get('/products');
-  console.log('Fetching products...');
-  return { data: mockProducts }; // Trả về dữ liệu giả
+  try {
+    const response = await api.get('/products');
+    if (response.data && response.data.success) {
+      return response.data.result;
+    }
+    return { products: [], pagination: {} };
+  } catch (error) {
+    console.error("Failed to fetch products:", error);
+    return { products: [], pagination: {} };
+  }
 };
-
-export const getProductBySlug = async (slug: string) => {
-  // return await api.get(`/products/${slug}`);
-  console.log(`Fetching product with slug: ${slug}`);
-  return { data: mockProducts.find(p => p.slug === slug) };
-};
-
 
 // --- Thêm mock data và hàm mới ---
 const mockProducts = [
@@ -35,13 +52,6 @@ const mockOrders = [
   { id: 'ORD003', user: { id: 3, name: 'Lê Văn C' }, total: 250000, status: 'pending', createdAt: new Date('2025-07-24') },
   { id: 'ORD004', user: { id: 1, name: 'Nguyễn Văn A' }, total: 1100000, status: 'cancelled', createdAt: new Date('2025-07-15') },
 ];
-
-
-export const getProductById = async (id: string) => {
-  // return await api.get(`/products/details/${id}`);
-  console.log(`Fetching product with id: ${id}`);
-  return mockProducts.find(p => p.id === id);
-};
 
 export const getOrders = async () => {
   // return await api.get('/orders');

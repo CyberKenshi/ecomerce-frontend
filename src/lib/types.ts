@@ -2,36 +2,38 @@
 
 // Định nghĩa cho một sản phẩm
 export interface Product {
-  id: string | number;
-  name: string;
-  slug: string;
+  productId: string;
+  productName: string;
+  barcode: string;
+  categoryId: string;
+  importPrice: number;
+  retailPrice: number;
+  manufacturer: string;
   description: string;
-  price: number;
-  imageUrl: string;
-  images?: string[]; // Danh sách ảnh chi tiết
-  stock: number;
-  category: string; // Hoặc có thể là một interface Category
-  ratings?: {
-    average: number;
-    count: number;
-  };
+  image: string[]; 
+  stockQuantity: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
-// Định nghĩa cho một item trong giỏ hàng
-export interface CartItem extends Product {
+// Định nghĩa cho một item trong giỏ hàng (ánh xạ từ Product)
+export interface CartItem {
+  id: string;         
+  name: string;       
+  price: number;      
+  imageUrl: string;   
   quantity: number;
+  stock: number;      
 }
+
 
 // Định nghĩa cho người dùng
 export interface User {
-  id: string | number;
-  name: string;
+  _id: string;       
+  fullName: string; 
   email: string;
-  address?: {
-    street: string;
-    city: string;
-    zipCode: string;
-  };
+  role?: 'admin' | 'customer';
 }
 
 // Định nghĩa cho đơn hàng
